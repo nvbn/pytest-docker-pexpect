@@ -1,4 +1,4 @@
-# pytest-docker-pexpect
+# pytest-docker-pexpect [![Build Status](https://travis-ci.org/nvbn/pytest-docker-pexpect.svg?branch=master)](https://travis-ci.org/nvbn/pytest-docker-pexpect)
 
 py.test plugin for writing simple functional tests with pexpect and docker.
 
