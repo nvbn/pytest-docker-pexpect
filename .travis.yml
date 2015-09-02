@@ -6,4 +6,4 @@ python:
 install:
   - python setup.py develop
 script:
-  - py.test -vv --capture=sys
+  - py.test -vv --capture=sys --run-without-docker
