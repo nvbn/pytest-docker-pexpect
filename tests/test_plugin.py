@@ -16,6 +16,7 @@ def proc(request, spawnu):
     return spawnu(*request.param)
 
 
+@pytest.mark.once_without_docker
 def test_echo(proc, TIMEOUT):
     """Ensures that all works.
 

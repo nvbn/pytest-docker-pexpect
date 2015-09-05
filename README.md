@@ -30,6 +30,9 @@ assert proc.expect([TIMEOUT, u'1'])
 
 If you want to disable tests if docker isn't available, use `@pytest.mark.skip_without_docker`.
 
+If you want to run parametrized test only once without docker, use
+`@pytest.mark.once_without_docker`.
+
 ## Usage without docker
 
 With flag `--run-without-docker` tests can be run in environment without docker (e.g. travis-ci).

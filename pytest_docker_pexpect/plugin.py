@@ -36,3 +36,13 @@ def TIMEOUT():
 def skip_without_docker(request, run_without_docker):
     if request.node.get_marker('skip_without_docker') and run_without_docker:
         pytest.skip('skipped without docker')
+
+
+@pytest.fixture(autouse=True)
+def once_without_docker(request, run_without_docker):
+    if request.node.get_marker('once_without_docker') and run_without_docker:
+        if request.node.function not in once_without_docker._ran:
+            once_without_docker._ran.add(request.node.function)
+        else:
+            pytest.skip('skipped without docker')
+once_without_docker._ran = set()
