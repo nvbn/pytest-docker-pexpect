@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.1'
+version = '0.2'
 
 setup(name='pytest-docker-pexpect',
       version=version,
@@ -12,6 +12,6 @@ setup(name='pytest-docker-pexpect',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=False,
-      install_requires=['pexpect', 'pytest'],
+      install_requires=['pexpect', 'pytest', 'six'],
       entry_points={'pytest11': [
           'docker_pexpect = pytest_docker_pexpect.plugin']})

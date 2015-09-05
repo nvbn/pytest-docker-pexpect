@@ -5,8 +5,8 @@ import os
 import pexpect
 
 
-def build_container(tag, dockerfile, source_root):
-    """Builds docker container and copies sources inside it in src folder.
+def build_container(tag, dockerfile):
+    """Builds docker container.
 
     :type tag: basestring
     :type dockerfile: basestring
@@ -15,7 +15,6 @@ def build_container(tag, dockerfile, source_root):
     """
     tmpdir = mkdtemp()
     try:
-        subprocess.call(['cp', '-a', source_root, tmpdir])
         dockerfile_path = os.path.join(tmpdir, 'Dockerfile')
         with open(dockerfile_path, 'w') as file:
             file.write(dockerfile)
@@ -35,8 +34,10 @@ def spawnu(source_root, tag, dockerfile, command):
     :rtype: pexpect.spawnu
 
     """
-    build_container(tag, dockerfile, source_root)
+    build_container(tag, dockerfile)
     spawned = pexpect.spawnu(
-        'docker', ['run', '--rm=true', '--volume {}:/src'.format(source_root),
-                   '--tty=true', '--interactive=true', tag, command])
+        'docker', ['run', '--rm=true', '--volume',
+                   '{}:/src'.format(source_root),
+                   '--tty=true', '--interactive=true',
+                   tag, command])
     return spawned

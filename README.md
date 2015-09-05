@@ -10,36 +10,23 @@ pip install pytest-docker-pexpect
 
 ## Usage
 
-The plugin provides `pytest.mark.containers(*container_tuples)` marker
-that accepts container tuples in format `(container_tag, dockerfile, command)`.
-It automatically passed `pexpect.spawnu` object to a test function
-as a `container` parameter:
+The plugin provides `spawnu` fixture, that could be called like
+`spawnu(tag, dockerfile, command)`, it returns `pexpect.spwanu` attached to `command`
+runned inside a container that built with `tag` and `dockerfile`:
 
 ```python
-import pytest
-
-
-@pytest.mark.containers(
-    (u'pytest-docker-pexpect/ubuntu-bash',
-     u'''FROM ubuntu:latest
-         RUN apt-get update
-         RUN apt-get install -yy bash''',
-     u'bash'),
-    (u'pytest-docker-pexpect/ubuntu-zsh',
-     u'''FROM ubuntu:latest
-         RUN apt-get update
-         RUN apt-get install -yy zsh''',
-     u'zsh'))
-def test_echo(container, TIMEOUT):
-    container.sendline(u'echo 1')
-    assert container.expect([TIMEOUT, u'1'])
+def test_echo(spawnu):
+    proc = spawnu(u'ubuntu', u'FROM ubuntu:latest', 'bash')
+    proc.sendline(u'ls')
 ```
 
 Also the plugin provides `TIMEOUT` fixture, that can be used for simple asserts, like:
 
 ```python
-assert container.expect([TIMEOUT, u'1'])
+assert proc.expect([TIMEOUT, u'1'])
 ```
+
+And `run_without_docker` fixtures, that indicates that docker isn't used.
 
 ## Usage without docker
 
