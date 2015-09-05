@@ -1,3 +1,4 @@
+import sys
 import pexpect
 
 
@@ -11,5 +12,5 @@ def spawnu(source_root, tag, dockerfile, command):
     :rtype: pexpect.spawnu
 
     """
-    proc = pexpect.spawnu(command)
+    proc = pexpect.spawnu(command, logfile=sys.stderr)
     return proc

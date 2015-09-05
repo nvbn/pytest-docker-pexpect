@@ -1,3 +1,4 @@
+import sys
 import subprocess
 import shutil
 from tempfile import mkdtemp
@@ -39,5 +40,6 @@ def spawnu(source_root, tag, dockerfile, command):
         'docker', ['run', '--rm=true', '--volume',
                    '{}:/src'.format(source_root),
                    '--tty=true', '--interactive=true',
-                   tag, command])
+                   tag, command],
+        logfile=sys.stderr)
     return spawned
