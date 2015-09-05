@@ -30,3 +30,9 @@ def spawnu(run_without_docker):
 @pytest.fixture(scope="function")
 def TIMEOUT():
     return pexpect.TIMEOUT
+
+
+@pytest.fixture(autouse=True)
+def skip_without_docker(request, run_without_docker):
+    if request.node.get_marker('skip_without_docker') and run_without_docker:
+        pytest.skip('skipped without docker')

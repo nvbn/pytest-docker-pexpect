@@ -26,7 +26,9 @@ Also the plugin provides `TIMEOUT` fixture, that can be used for simple asserts,
 assert proc.expect([TIMEOUT, u'1'])
 ```
 
-And `run_without_docker` fixtures, that indicates that docker isn't used.
+`run_without_docker` fixtures, that indicates that docker isn't used.
+
+If you want to disable tests if docker isn't available, use `@pytest.mark.skip_without_docker`.
 
 ## Usage without docker
 
