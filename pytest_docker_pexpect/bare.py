@@ -13,4 +13,6 @@ def spawnu(source_root, tag, dockerfile, command):
 
     """
     proc = pexpect.spawnu(command, logfile=sys.stderr)
+    proc.docker_container_id = None
+    proc.docker_inspect = lambda: {}
     return proc

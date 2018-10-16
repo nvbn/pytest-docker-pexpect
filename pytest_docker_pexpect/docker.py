@@ -3,6 +3,7 @@ import subprocess
 import shutil
 from tempfile import mkdtemp
 import os
+import json
 import pexpect
 
 
@@ -25,6 +26,40 @@ def build_container(tag, dockerfile):
         shutil.rmtree(tmpdir)
 
 
+def get_container_id(tag, command):
+    """Returns container id for spawned pexpect.
+    
+    :type tag: basestring
+    :rtype: basestring
+    
+    """
+    proc = subprocess.Popen(
+        ['docker', 'ps', '--format', '{{json .}}'],
+        stdout=subprocess.PIPE)
+
+    for line in proc.stdout.readlines():
+        data = json.loads(line.decode())
+        if tag in data['Image'] and command in data['Command']:
+            return data['ID']
+
+
+def inspect(container_id):
+    proc = subprocess.Popen(
+        ['docker', 'inspect', '--format', '{{json .}}', container_id],
+        stdout=subprocess.PIPE)
+    data = proc.stdout.read().decode()
+    return json.loads(data)
+
+
+def stats(container_id):
+    proc = subprocess.Popen(
+        ['docker', 'stats', '--no-stream',
+         '--format', '{{json .}}', container_id],
+        stdout=subprocess.PIPE)
+    data = proc.stdout.read().decode()
+    return json.loads(data)
+
+
 def spawnu(source_root, tag, dockerfile, command):
     """Creates pexpect spawnu attached to docker.
 
@@ -42,4 +77,9 @@ def spawnu(source_root, tag, dockerfile, command):
                    '--tty=true', '--interactive=true',
                    tag, command],
         logfile=sys.stderr)
+
+    spawned.docker_container_id = get_container_id(tag, command)
+    spawned.docker_inspect = lambda: inspect(spawned.docker_container_id)
+    spawned.docker_stats = lambda: stats(spawned.docker_container_id)
+
     return spawned

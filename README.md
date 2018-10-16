@@ -20,6 +20,14 @@ def test_echo(spawnu):
     proc.sendline(u'ls')
 ```
 
+`spawnu` provides [pexpect API](https://pexpect.readthedocs.io/en/stable/api/pexpect.html#spawn-class)
+and additional docker-specific API:
+
+* `proc.docker_container_id` &ndash; container id
+* `proc.docker_inspect()` &ndash; decoded json output of `docker inspect`
+* `proc.docker_stats()` &ndash; decoded json output of `docker stats`
+
+
 Also the plugin provides `TIMEOUT` fixture, that can be used for simple asserts, like:
 
 ```python
