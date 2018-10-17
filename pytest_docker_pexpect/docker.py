@@ -4,6 +4,7 @@ import shutil
 from tempfile import mkdtemp
 import os
 import json
+import atexit
 import pexpect
 
 
@@ -26,24 +27,14 @@ def build_container(tag, dockerfile):
         shutil.rmtree(tmpdir)
 
 
-def get_container_id(tag, command):
-    """Returns container id for spawned pexpect.
-    
-    :type tag: basestring
-    :rtype: basestring
-    
-    """
-    proc = subprocess.Popen(
-        ['docker', 'ps', '--format', '{{json .}}'],
-        stdout=subprocess.PIPE)
-
-    for line in proc.stdout.readlines():
-        data = json.loads(line.decode())
-        if tag in data['Image'] and command in data['Command']:
-            return data['ID']
-
 
 def inspect(container_id):
+    """Returns output of `docker --inspect`
+
+    :type container_id: basestring
+    :rtype: dict
+
+    """
     proc = subprocess.Popen(
         ['docker', 'inspect', '--format', '{{json .}}', container_id],
         stdout=subprocess.PIPE)
@@ -52,12 +43,46 @@ def inspect(container_id):
 
 
 def stats(container_id):
+    """Returns output of `docker --stats`
+
+    :type container_id: basestring
+    :rtype: dict
+
+    """
     proc = subprocess.Popen(
         ['docker', 'stats', '--no-stream',
          '--format', '{{json .}}', container_id],
         stdout=subprocess.PIPE)
     data = proc.stdout.read().decode()
     return json.loads(data)
+
+
+def run(source_root, tag, command):
+    """Runs docker container in detached mode.
+
+    :type source_root: basestring
+    :type tag: basestring
+    :type command: basestring
+    :rtype: basestring
+
+    """
+    proc = subprocess.Popen(
+        ['docker', 'run', '--rm=true', '--volume',
+         '{}:/src'.format(source_root),
+         '--tty=true', '--interactive=true',
+         '--detach', tag, command],
+        stdout=subprocess.PIPE)
+    return proc.stdout.readline().decode()[:-1]
+
+
+def kill(container_id):
+    """Kills docker container.
+
+    :type container_id: basestring
+
+    """
+    subprocess.call(['docker', 'kill', container_id],
+                    stdout=subprocess.PIPE)
 
 
 def spawnu(source_root, tag, dockerfile, command):
@@ -71,15 +96,14 @@ def spawnu(source_root, tag, dockerfile, command):
 
     """
     build_container(tag, dockerfile)
-    spawned = pexpect.spawnu(
-        'docker', ['run', '--rm=true', '--volume',
-                   '{}:/src'.format(source_root),
-                   '--tty=true', '--interactive=true',
-                   tag, command],
-        logfile=sys.stderr)
+    container_id = run(source_root, tag, command)
+    atexit.register(kill, container_id)
 
-    spawned.docker_container_id = get_container_id(tag, command)
-    spawned.docker_inspect = lambda: inspect(spawned.docker_container_id)
-    spawned.docker_stats = lambda: stats(spawned.docker_container_id)
+    spawned = pexpect.spawnu('docker', ['attach', container_id],
+                             logfile=sys.stderr)
+
+    spawned.docker_container_id = container_id
+    spawned.docker_inspect = lambda: inspect(container_id)
+    spawned.docker_stats = lambda: stats(container_id)
 
     return spawned
