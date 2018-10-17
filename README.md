@@ -52,7 +52,7 @@ If you want to run parametrized test only once without docker, use
 
 ## Usage without docker
 
-With flag `--run-without-docker` tests can be run in environment without docker (e.g. travis-ci).
+With flag `--run-without-docker` tests can be run in environment without docker.
 In this mode tests runs only for first container and docker initialization steps are skipped.
 Be careful, in this mode all commands will be execute directly on local system!
 
