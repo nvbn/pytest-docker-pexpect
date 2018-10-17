@@ -57,7 +57,7 @@ def stats(container_id):
     return json.loads(data)
 
 
-def run(source_root, tag, command):
+def run(source_root, tag, command, docker_run_arguments):
     """Runs docker container in detached mode.
 
     :type source_root: basestring
@@ -70,7 +70,7 @@ def run(source_root, tag, command):
         ['docker', 'run', '--rm=true', '--volume',
          '{}:/src'.format(source_root),
          '--tty=true', '--interactive=true',
-         '--detach', tag, command],
+         '--detach'] + docker_run_arguments + [tag, command],
         stdout=subprocess.PIPE)
     return proc.stdout.readline().decode()[:-1]
 
@@ -85,18 +85,22 @@ def kill(container_id):
                     stdout=subprocess.PIPE)
 
 
-def spawnu(source_root, tag, dockerfile, command):
+def spawnu(source_root, tag, dockerfile, command, docker_run_arguments=None):
     """Creates pexpect spawnu attached to docker.
 
     :type source_root: basestring
     :type tag: basestring
     :type dockerfile: basestring
     :type command: basestring
+    :type docker_run_arguments: list
     :rtype: pexpect.spawnu
 
     """
+    if docker_run_arguments is None:
+        docker_run_arguments = []
+
     build_container(tag, dockerfile)
-    container_id = run(source_root, tag, command)
+    container_id = run(source_root, tag, command, docker_run_arguments)
     atexit.register(kill, container_id)
 
     spawned = pexpect.spawnu('docker', ['attach', container_id],

@@ -2,7 +2,7 @@ import sys
 import pexpect
 
 
-def spawnu(source_root, tag, dockerfile, command):
+def spawnu(source_root, tag, dockerfile, command, docker_run_arguments=None):
     """Creates pexpect's spwanu attached to command.
 
     :type source_root: basestring

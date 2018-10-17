@@ -11,13 +11,22 @@ pip install pytest-docker-pexpect
 ## Usage
 
 The plugin provides `spawnu` fixture, that could be called like
-`spawnu(tag, dockerfile, command)`, it returns `pexpect.spwanu` attached to `command`
+`spawnu(tag, dockerfile_content, command)`, it returns `pexpect.spwanu` attached to `command`
 runned inside a container that built with `tag` and `dockerfile`:
 
 ```python
 def test_echo(spawnu):
-    proc = spawnu(u'ubuntu', u'FROM ubuntu:latest', 'bash')
+    proc = spawnu(u'ubuntu', u'FROM ubuntu:latest', u'bash')
     proc.sendline(u'ls')
+```
+
+Current working directory available inside the container in `/src`.
+
+It's also possible to pass arguments to `docker run` with `spawnu`:
+
+```python
+spawnu(u'ubuntu', u'FROM ubuntu:latest', u'bash',
+       docker_run_arguments=[u'--expose', u'80'])
 ```
 
 `spawnu` provides [pexpect API](https://pexpect.readthedocs.io/en/stable/api/pexpect.html#spawn-class)

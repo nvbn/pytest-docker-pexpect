@@ -11,7 +11,7 @@ import pytest
              u'''FROM ubuntu:latest
                  RUN apt-get update
                  RUN apt-get install -yy zsh''',
-             u'zsh')))
+             u'zsh', [u'--expose', u'8000'])))
 def proc(request, spawnu):
     return spawnu(*request.param)
 
